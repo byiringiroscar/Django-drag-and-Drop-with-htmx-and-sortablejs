@@ -10,7 +10,7 @@ from django.views.generic import ListView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.decorators.http import require_http_methods
-
+from films.utils import get_max_order
 from django.contrib import messages
 
 from films.forms import RegisterForm
@@ -60,10 +60,8 @@ def add_film(request):
         return render(request, 'partials/film-list.html', {'films': request.user.films.all()})
     film = Film.objects.get_or_create(name=name)[0]
 
-    # add the film to the user's list
-    request.user.films.add(film)
     if UserFilms.objects.filter(user=request.user, film=film).exists():
-        UserFilms.objects.create(user=request.user, film=film, order=1)
+        UserFilms.objects.create(user=request.user, film=film, order=get_max_order(request.user))
 
     films = UserFilms.objects.filter(user=request.user)
     messages.success(request, f'Added {name} to list of films!')
