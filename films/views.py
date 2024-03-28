@@ -56,12 +56,16 @@ class FilmList(ListView):
 @login_required
 def add_film(request):
     name = request.POST.get('filmname')
-    if name == '':
-        return render(request, 'partials/film-list.html', {'films': request.user.films.all()})
+    # if name == '':
+    #     return render(request, 'partials/film-list.html', {'films': request.user.films.all()})
     film = Film.objects.get_or_create(name=name)[0]
 
-    if UserFilms.objects.filter(user=request.user, film=film).exists():
-        UserFilms.objects.create(user=request.user, film=film, order=get_max_order(request.user))
+    if not UserFilms.objects.filter(user=request.user, film=film).exists():
+        UserFilms.objects.create(
+            user=request.user,
+            film=film,
+            order=get_max_order(request.user)
+        )
 
     films = UserFilms.objects.filter(user=request.user)
     messages.success(request, f'Added {name} to list of films!')
