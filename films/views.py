@@ -10,7 +10,7 @@ from django.views.generic import ListView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.decorators.http import require_http_methods
-from films.utils import get_max_order
+from films.utils import get_max_order, reorder
 from django.contrib import messages
 
 from films.forms import RegisterForm
@@ -75,6 +75,7 @@ def add_film(request):
 @require_http_methods(['DELETE'])
 def delete_film(request, pk):
     UserFilms.objects.get(pk=pk).delete()
+    reorder(request.user)
     films = UserFilms.objects.filter(user=request.user)
     return render(request, 'partials/film-list.html', {'films': films})
 
