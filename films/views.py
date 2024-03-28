@@ -4,7 +4,7 @@ from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
 from django.views.generic import FormView, TemplateView
 from django.contrib.auth import get_user_model
-from films.models import Film
+from films.models import Film, UserFilms
 from django.views.generic import ListView
 
 from django.contrib.auth.decorators import login_required
@@ -51,8 +51,7 @@ class FilmList(ListView):
     context_object_name = 'films'
 
     def get_queryset(self):
-        user = self.request.user
-        return user.films.all()
+        return UserFilms.objects.filter(user=self.request.user)
     
 @login_required
 def add_film(request):
