@@ -62,27 +62,27 @@ def add_film(request):
 
     # add the film to the user's list
     request.user.films.add(film)
+    if UserFilms.objects.filter(user=request.user, film=film).exists():
+        UserFilms.objects.create(user=request.user, film=film, order=1)
 
-    # return the template with all of the users's films
-    films = request.user.films.all()
+    films = UserFilms.objects.filter(user=request.user)
     messages.success(request, f'Added {name} to list of films!')
     return render(request, 'partials/film-list.html', {'films': films})
 
 @login_required
 @require_http_methods(['DELETE'])
 def delete_film(request, pk):
-    film = Film.objects.get(pk=pk)
-    request.user.films.remove(film)
-    films = request.user.films.all()
+    UserFilms.objects.get(pk=pk).delete()
+    films = UserFilms.objects.filter(user=request.user)
     return render(request, 'partials/film-list.html', {'films': films})
 
 
 
 def search_film(request):
     search_text = request.POST.get('search')
-    userfilms  = request.user.films.all()
+    userfilms  = UserFilms.objects.filter(user=request.user)
     results = Film.objects.filter(name__icontains=search_text).exclude(
-        name__in=userfilms.values_list('name', flat=True)
+        name__in=userfilms.values_list('film__name', flat=True)
     )
     context = {
         'results': results
