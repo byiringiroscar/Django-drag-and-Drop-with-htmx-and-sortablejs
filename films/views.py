@@ -94,3 +94,14 @@ def search_film(request):
 
 def clear(request):
     return HttpResponse("")
+
+
+def sort(request):
+    film_pks_order = request.POST.getlist('film_order')
+    films = []
+    for idx, film_pk in enumerate(film_pks_order, start=1):
+        userfilm = UserFilms.objects.get(pk=film_pk)
+        userfilm.order = idx
+        userfilm.save()
+        films.append(userfilm)
+    return render(request, 'partials/film-list.html', {'films': films})
